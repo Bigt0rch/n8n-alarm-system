@@ -1,0 +1,491 @@
+{
+  "name": "Procesar y enviar alarmas",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        48
+      ],
+      "id": "308f1567-b561-431e-b82c-8eb5e60fa8f5",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/victor/.n8n-files/alarms.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        48
+      ],
+      "id": "df606bef-9314-4820-a127-242f5efce8ee",
+      "name": "Abrir alarms.json"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        704,
+        48
+      ],
+      "id": "fbd6cfd3-9cf4-4b28-ac97-8b8f36b58b1f",
+      "name": "Extraer json"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        928,
+        48
+      ],
+      "id": "eda35604-3aaf-4938-8e5e-75a2fdcfe74f",
+      "name": "Dividir json en items"
+    },
+    {
+      "parameters": {
+        "mode": "expression",
+        "output": "={{ $json.branch }}"
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1376,
+        16
+      ],
+      "id": "0b716efd-360f-4828-8254-3ad3f23bc849",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "const totalBranches = 4;\n\nreturn items.map((item, index) => {\n  return {\n    json: {\n      ...item.json,\n      branch: index % totalBranches\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        48
+      ],
+      "id": "f764de75-3fcf-4bf8-b54b-7f069e10e0ec",
+      "name": "Asignar rama"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        -240
+      ],
+      "id": "f9f8b9fd-1eeb-4b8b-b7a4-28db5eb81eaa",
+      "name": "Juntar items en array"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        -48
+      ],
+      "id": "2b64265c-22e0-41ea-9a3f-70ecc6eca41c",
+      "name": "Juntar items en array1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        144
+      ],
+      "id": "a32f4a41-af2b-40b5-aaff-401be849c93d",
+      "name": "Juntar items en array2"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        336
+      ],
+      "id": "4d3c9871-894f-44a3-bbae-f4b3d2e0f0cc",
+      "name": "Juntar items en array3"
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ JSON.stringify( $json.data ) }}' | python3 /home/victor/.n8n-files/alarmMonitorDBn8n.py \\\n  --influx-url    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_URL }} \\\n  --influx-token  {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_TOKEN }} \\\n  --influx-org    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_ORG }} \\\n  --influx-bucket {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_BUCKET }} \\\n  --log-dir       ~/.n8n-files/logs"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        -240
+      ],
+      "id": "073bfe69-d53c-4f92-99ff-ff674c7cb95a",
+      "name": "AlarmMonitor"
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ $json.stdout }}' | python3 /home/victor/.n8n-files/alarmNotifiern8n.py \\\n  --smtp-host     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_HOST }} \\\n  --smtp-port     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PORT }} \\\n  --smtp-user     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_USER }} \\\n  --smtp-password {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PASSWORD }} \\\n  --email-from    \"{{ $('Extract from File').item.json.data.MAIL_CONFIG.EMAIL_FROM }}\" \\\n  --log-dir       {{ $('Extract from File').item.json.data.LOG_DIRECTORY }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        -240
+      ],
+      "id": "c71b14c2-9a06-4831-aea7-dd7bb41698a3",
+      "name": "AlarmNotifier"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/victor/.n8n-files/config.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        32,
+        48
+      ],
+      "id": "2daec4fb-f930-44fe-93b7-9b1708b38801",
+      "name": "Abrir config.json"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        48
+      ],
+      "id": "8daee966-8406-40c7-a24f-a79a8740ef77",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ JSON.stringify( $json.data ) }}' | python3 /home/victor/.n8n-files/alarmMonitorDBn8n.py \\\n  --influx-url    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_URL }} \\\n  --influx-token  {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_TOKEN }} \\\n  --influx-org    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_ORG }} \\\n  --influx-bucket {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_BUCKET }} \\\n  --log-dir       ~/.n8n-files/logs"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        -48
+      ],
+      "id": "250384f1-99da-4b11-adc3-4559b55e7da5",
+      "name": "AlarmMonitor1"
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ JSON.stringify( $json.data ) }}' | python3 /home/victor/.n8n-files/alarmMonitorDBn8n.py \\\n  --influx-url    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_URL }} \\\n  --influx-token  {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_TOKEN }} \\\n  --influx-org    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_ORG }} \\\n  --influx-bucket {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_BUCKET }} \\\n  --log-dir       ~/.n8n-files/logs"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        144
+      ],
+      "id": "8c7a6ec6-3019-4caa-ba82-d82b0a38b584",
+      "name": "AlarmMonitor2"
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ JSON.stringify( $json.data ) }}' | python3 /home/victor/.n8n-files/alarmMonitorDBn8n.py \\\n  --influx-url    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_URL }} \\\n  --influx-token  {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_TOKEN }} \\\n  --influx-org    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_ORG }} \\\n  --influx-bucket {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_BUCKET }} \\\n  --log-dir       ~/.n8n-files/logs"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        336
+      ],
+      "id": "8993cc9f-47c6-4420-9e8a-8fb6f8799763",
+      "name": "AlarmMonitor3"
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ $json.stdout }}' | python3 /home/victor/.n8n-files/alarmNotifiern8n.py \\\n  --smtp-host     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_HOST }} \\\n  --smtp-port     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PORT }} \\\n  --smtp-user     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_USER }} \\\n  --smtp-password {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PASSWORD }} \\\n  --email-from    \"{{ $('Extract from File').item.json.data.MAIL_CONFIG.EMAIL_FROM }}\" \\\n  --log-dir       {{ $('Extract from File').item.json.data.LOG_DIRECTORY }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        -48
+      ],
+      "id": "ad1481a5-5ed2-433b-a68d-ab9629ba6492",
+      "name": "AlarmNotifier1"
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ $json.stdout }}' | python3 /home/victor/.n8n-files/alarmNotifiern8n.py \\\n  --smtp-host     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_HOST }} \\\n  --smtp-port     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PORT }} \\\n  --smtp-user     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_USER }} \\\n  --smtp-password {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PASSWORD }} \\\n  --email-from    \"{{ $('Extract from File').item.json.data.MAIL_CONFIG.EMAIL_FROM }}\" \\\n  --log-dir       {{ $('Extract from File').item.json.data.LOG_DIRECTORY }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        144
+      ],
+      "id": "a2c7ec51-6d55-486d-98e5-236968c463d9",
+      "name": "AlarmNotifier2"
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ $json.stdout }}' | python3 /home/victor/.n8n-files/alarmNotifiern8n.py \\\n  --smtp-host     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_HOST }} \\\n  --smtp-port     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PORT }} \\\n  --smtp-user     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_USER }} \\\n  --smtp-password {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PASSWORD }} \\\n  --email-from    \"{{ $('Extract from File').item.json.data.MAIL_CONFIG.EMAIL_FROM }}\" \\\n  --log-dir       {{ $('Extract from File').item.json.data.LOG_DIRECTORY }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        336
+      ],
+      "id": "e27cacc2-c938-4655-a551-aa8469a28286",
+      "name": "AlarmNotifier3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Abrir config.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abrir alarms.json": {
+      "main": [
+        [
+          {
+            "node": "Extraer json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer json": {
+      "main": [
+        [
+          {
+            "node": "Dividir json en items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dividir json en items": {
+      "main": [
+        [
+          {
+            "node": "Asignar rama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Juntar items en array",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Juntar items en array1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Juntar items en array2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Juntar items en array3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asignar rama": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juntar items en array": {
+      "main": [
+        [
+          {
+            "node": "AlarmMonitor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juntar items en array1": {
+      "main": [
+        [
+          {
+            "node": "AlarmMonitor1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juntar items en array2": {
+      "main": [
+        [
+          {
+            "node": "AlarmMonitor2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juntar items en array3": {
+      "main": [
+        [
+          {
+            "node": "AlarmMonitor3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AlarmMonitor": {
+      "main": [
+        [
+          {
+            "node": "AlarmNotifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AlarmNotifier": {
+      "main": [
+        []
+      ]
+    },
+    "Abrir config.json": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Abrir alarms.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AlarmMonitor1": {
+      "main": [
+        [
+          {
+            "node": "AlarmNotifier1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AlarmMonitor2": {
+      "main": [
+        [
+          {
+            "node": "AlarmNotifier2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AlarmMonitor3": {
+      "main": [
+        [
+          {
+            "node": "AlarmNotifier3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4734ed27-5cb1-481d-8f9d-40295963c20d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
+  },
+  "id": "0Q32Icz8kNAx83UG",
+  "tags": []
+}
