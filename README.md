@@ -21,7 +21,7 @@ npm --version
  
 Si ambos comandos devuelven un número de versión (por ejemplo, `v20.11.0` y `10.2.4`), puedes saltarte directamente al apartado [Instalación de n8n](#instalación-de-n8n).
  
-> ⚠️ n8n requiere **Node.js 18 o superior**.
+> ⚠️ n8n requiere **Node.js 20.22 o superior, debido a las dependencias.**.
  
 ---
  
