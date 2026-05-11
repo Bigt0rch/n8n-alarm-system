@@ -207,7 +207,7 @@ def evaluar_condicion(alarma: dict, valor, log: logging.Logger) -> str:
         return "CRITICAL"
  
     if alarma["tipo"] == "estado":
-        resultado = "OK" if valor == 200 else "CRITICAL"
+        resultado = "OK" if valor in (200, 403) else "CRITICAL"
         log.debug(f"'{alarma['nombre']}': status_code={valor} → {resultado}")
         return resultado
  
