@@ -101,9 +101,10 @@ n8n start
 
 ## Workflow
 
- - Para importar el workflow crea un nuevo workflow y haz click en los 3 puntos de arriba a la derecha. Luego haz click en `Import from file...` y selecciona el archivo [Procesar y enviar alarmas.json](Procesar%20y%20enviar%20alarmas.json).
+ - Para importar el workflow crea un nuevo workflow y haz click en los 3 puntos de arriba a la derecha. Luego haz click en `Import from file...` y selecciona el archivo [Workflow principal alarmas.json](Workflow%20principal%20alarmas.json).
+ - Realiza el mismo proceso con el archivo [Workflow secundario (webhook).json](Workflow%20secundario%20(webhook).json)
  - Coloca el fichero [alarms.json](alarms.json) en el directorio `~/.n8n-files`.
-  - En el nodo `Abrir alarms.json` modifica el path del archivo que se abre por donde este ubicado tu [alarms.json](alarms.json).
+  - En el nodo `Abrir alarms.json` del workflow `Workflow principal alarmas.json` modifica el path del archivo que se abre por donde este ubicado tu [alarms.json](alarms.json).
  - Coloca el fichero [config.json](config.json) en el directorio `~/.n8n-files`.
- - En el nodo `Abrir config.json` modifica el path del archivo que se abre por donde este ubicado tu [config.json](alarms.json).
-  - Modifica tambien los paths de los scripts Python que se ejecutan en todos los nodos `AlarmMonitor` y `AlarmNotifier` para que se ejecuten tus ficheros [alarmMonitorDBn8n.py](alarmMonitorDBn8n.py) y [alarmNotifiern8n.py](alarmNotifiern8n.py).
+ - En el nodo `Abrir config.json` del workflow `Workflow secundario (webhook).json` modifica el path del archivo que se abre por donde este ubicado tu [config.json](alarms.json).
+  - Modifica tambien los paths de los scripts Python que se ejecutan en los nodos `AlarmMonitor` y `AlarmNotifier` del workflow `Workflow secundario (webhook).json` para que se ejecuten tus ficheros [alarmMonitorDBn8n.py](alarmMonitorDBn8n.py) y [alarmNotifiern8n.py](alarmNotifiern8n.py).
