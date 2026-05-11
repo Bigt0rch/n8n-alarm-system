@@ -4,6 +4,14 @@ A docker container/service/server alarm monitoring system automated using n8n.
 ## config.json
 Este fichero te debe ser proporcionado y ahí es donde debes modificar llos valores de las distintas credenciales, tanto de base de datos como del correo.
 
+## Versiones
+
+Este sistema ha sido desarrollado usando:
+ - Node 20.20.2
+ - npm 10.8.2
+ - n8n 2.8.4
+ - Linux Mint 21.2
+
 ## Instalación de n8n
  
 ### Requisitos previos
