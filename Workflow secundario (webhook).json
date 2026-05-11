@@ -1,0 +1,133 @@
+{
+  "name": "Workflow secundario (webhook)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "f3a76e22-1cfc-4bd1-b95a-6195b9d1d4b5",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        352
+      ],
+      "id": "ab409111-2eaf-44f8-8b09-8792a2cca2f2",
+      "name": "Webhook",
+      "webhookId": "f3a76e22-1cfc-4bd1-b95a-6195b9d1d4b5"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/victor/.n8n-files/config.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        704,
+        352
+      ],
+      "id": "e1af2f92-b8aa-4d83-8a52-dc1438116d46",
+      "name": "Abrir config.json"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        352
+      ],
+      "id": "435cc0ea-086e-43ae-9397-462df2d9e9b8",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ $json.stdout }}' | python3 /home/victor/.n8n-files/alarmNotifiern8n.py \\\n  --smtp-host     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_HOST }} \\\n  --smtp-port     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PORT }} \\\n  --smtp-user     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_USER }} \\\n  --smtp-password {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PASSWORD }} \\\n  --email-from    \"{{ $('Extract from File').item.json.data.MAIL_CONFIG.EMAIL_FROM }}\" \\\n  --log-dir       {{ $('Extract from File').item.json.data.LOG_DIRECTORY }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        352
+      ],
+      "id": "cd99b841-49ff-47ad-bf9a-77ebb90a37c1",
+      "name": "AlarmNotifier"
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ JSON.stringify( $('Webhook').item.json.body ) }}' | python3 /home/victor/.n8n-files/alarmMonitorDBn8n.py \\\n  --influx-url    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_URL }} \\\n  --influx-token  {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_TOKEN }} \\\n  --influx-org    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_ORG }} \\\n  --influx-bucket {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_BUCKET }} \\\n  --log-dir       ~/.n8n-files/logs"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        352
+      ],
+      "id": "86e26050-c8f5-4d89-8d46-eec9c29113c6",
+      "name": "AlarmMonitor"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Abrir config.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abrir config.json": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AlarmMonitor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AlarmMonitor": {
+      "main": [
+        [
+          {
+            "node": "AlarmNotifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "368300d1-53ae-4809-a5e1-db3c8b70bb5b",
+  "meta": {
+    "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
+  },
+  "id": "QKlsImIb2NyK5tXs",
+  "tags": []
+}

@@ -1,0 +1,198 @@
+{
+  "name": "Workflow principal alarmas",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        464,
+        48
+      ],
+      "id": "06d5285e-f681-45f9-af8f-3e79bdaf4ac0",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/victor/.n8n-files/official_alarms_updated.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        48
+      ],
+      "id": "bc06bc84-019b-4062-967b-976c6df7ddfc",
+      "name": "Abrir alarms.json"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        48
+      ],
+      "id": "ef58693c-b5e9-46dc-a61b-5dd2b4868a28",
+      "name": "Extraer json"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        48
+      ],
+      "id": "b895337a-2aeb-495e-8480-b308fc28139e",
+      "name": "Dividir json en items"
+    },
+    {
+      "parameters": {
+        "batchSize": 150,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1328,
+        48
+      ],
+      "id": "c01cbf98-77ad-431a-9fa0-ffb02bf12cab",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/f3a76e22-1cfc-4bd1-b95a-6195b9d1d4b5",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1776,
+        256
+      ],
+      "id": "c987a04e-ee90-497b-9974-fa621a6fa62c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1552,
+        112
+      ],
+      "id": "efe39773-ae5d-4a1d-b242-30b679f52617",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Abrir alarms.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abrir alarms.json": {
+      "main": [
+        [
+          {
+            "node": "Extraer json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer json": {
+      "main": [
+        [
+          {
+            "node": "Dividir json en items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dividir json en items": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "6ea27a6a-43a6-401f-b632-8fa0f8272bfe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
+  },
+  "id": "Tv86Qz1BhO3luiQa",
+  "tags": []
+}
