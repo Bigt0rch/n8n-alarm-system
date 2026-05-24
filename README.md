@@ -116,3 +116,151 @@ n8n start
  - Coloca el fichero [config.json](config.json) en el directorio `~/.n8n-files`.
  - En el nodo `Abrir config.json` del workflow `Workflow secundario (webhook).json` modifica el path del archivo que se abre por donde este ubicado tu [config.json](alarms.json).
   - Modifica tambien los paths de los scripts Python que se ejecutan en los nodos `AlarmMonitor` y `AlarmNotifier` del workflow `Workflow secundario (webhook).json` para que se ejecuten tus ficheros [alarmMonitorDBn8n.py](alarmMonitorDBn8n.py) y [alarmNotifiern8n.py](alarmNotifiern8n.py).
+
+## Configurar n8n como un Servicio
+
+### Descripción General
+
+Esta guía explica cómo configurar n8n como un servicio utilizando `systemd` en sistemas Linux. Al configurarlo como servicio, n8n se iniciará automáticamente cada vez que el servidor arranque, garantizando que los flujos de automatización estén disponibles de forma continua sin necesidad de iniciarlo manualmente.
+
+---
+
+### Crear un archivo de servicio para systemd
+
+Abre un terminal y crea un archivo de servicio para n8n en el directorio de configuración de `systemd`:
+
+```bash
+sudo nano /etc/systemd/system/n8n.service
+```
+
+Añade el siguiente contenido al archivo:
+
+```ini
+[Unit]
+Description=n8n Automation Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/n8n
+Restart=always
+RestartSec=10
+User=tu_usuario
+Environment=NODE_ENV=production
+Environment=N8N_PORT=5678
+Environment=N8N_HOST=0.0.0.0
+Environment=WEBHOOK_URL=http://TU_IP_O_DOMINIO:5678/
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Explicación de los parámetros
+
+* `ExecStart`: Especifica la ruta completa al binario de n8n.
+  Puedes verificar la ruta ejecutando:
+
+```bash
+which n8n
+```
+
+Por ejemplo:
+
+```ini
+ExecStart=/usr/local/bin/n8n
+```
+
+* `User`: Cambia `tu_usuario` por el usuario que ejecutará el servicio (por ejemplo, `luisgarcia`).
+
+* `N8N_PORT`: Puerto donde escuchará n8n.
+
+* `N8N_HOST`: Dirección IP o interfaz de red donde n8n estará disponible.
+
+* `WEBHOOK_URL`: URL pública utilizada por los webhooks de n8n.
+
+---
+
+### Recargar systemd
+
+Después de guardar el archivo, recarga los demonios de `systemd` para que el nuevo servicio sea reconocido:
+
+```bash
+sudo systemctl daemon-reload
+```
+
+---
+
+### Habilitar el servicio para inicio automático
+
+Habilita el servicio para que se ejecute automáticamente cada vez que el servidor arranque:
+
+```bash
+sudo systemctl enable n8n
+```
+
+---
+
+### Iniciar el servicio de n8n
+
+Inicia el servicio manualmente para comprobar que funciona correctamente:
+
+```bash
+sudo systemctl start n8n
+```
+
+---
+
+### Verificar el estado del servicio
+
+Revisa el estado del servicio para confirmar que está corriendo correctamente:
+
+```bash
+sudo systemctl status n8n
+```
+
+Si el servicio se está ejecutando correctamente, deberías ver una salida similar a:
+
+```bash
+Active: active (running)
+```
+
+---
+
+### Logs del servicio
+
+Para depurar problemas o verificar que n8n está funcionando correctamente, puedes consultar los logs del servicio:
+
+```bash
+sudo journalctl -u n8n -f
+```
+
+Esto mostrará los eventos en tiempo real relacionados con el servicio de n8n.
+
+---
+
+### Notas adicionales
+
+#### Persistencia de datos
+
+Por defecto, n8n almacena su base de datos SQLite y configuraciones en:
+
+```bash
+~/.n8n
+```
+
+Asegúrate de que el usuario especificado en `User` tenga permisos sobre este directorio.
+
+---
+
+#### Acceso desde navegador
+
+Una vez iniciado el servicio, podrás acceder a n8n desde:
+
+```text
+http://IP_DEL_SERVIDOR:5678
+```
+
+o mediante tu dominio configurado.
+
+---
+
