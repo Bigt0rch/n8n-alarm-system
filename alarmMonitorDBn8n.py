@@ -148,6 +148,7 @@ def obtener_estado_anterior(query_api, influx_org: str, influx_bucket: str,
 def escribir_cambio_estado(write_api, influx_org: str, influx_bucket: str,
                             alarm_id: str, nombre_alarma: str,
                             nuevo_estado: str, ultimo_valor,
+                            categoria: str,
                             log: logging.Logger) -> None:
     """
     Escribe un nuevo punto en alarm_notifications marcando el cambio de estado.
@@ -156,6 +157,7 @@ def escribir_cambio_estado(write_api, influx_org: str, influx_bucket: str,
     point = (
         Point(NOTIFICATIONS_MEASUREMENT)
         .tag("alarm_id", alarm_id)
+        .tag("categoria", categoria)
         .field("nombre_alarma", nombre_alarma)
         .field("estado",        nuevo_estado)
         .field("ultimo_valor",  str(ultimo_valor))
@@ -274,7 +276,7 @@ def procesar_alarma(alarma: dict, query_api, write_api,
                  f"{estado_anterior} → {nuevo_estado} (valor: {valor_actual})")
         escribir_cambio_estado(
             write_api, influx_org, influx_bucket,
-            alarm_id, nombre_alarma, nuevo_estado, valor_actual, log
+            alarm_id, nombre_alarma, nuevo_estado, valor_actual, categoria, log
         )
         return {
             "alarm_id":        alarm_id,

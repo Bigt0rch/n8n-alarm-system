@@ -1,0 +1,105 @@
+{
+  "name": "Workflow Informes mensuales",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        0
+      ],
+      "id": "0102786e-d6d2-4cc7-a144-1c2b873495c6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "command": "=python3 ~/.n8n-files/reportMonthly.py     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --email-to {{ $json.data.SEND_REPORTS_TO }}     --output-dir ~/.n8n-files/reports     --log-dir {{ $json.data.LOG_DIRECTORY }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        272,
+        0
+      ],
+      "id": "9efd2a56-4358-4bb3-a875-ffc069114ff5",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/victor/.n8n-files/config.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -176,
+        0
+      ],
+      "id": "5e72641b-c3e8-4550-aad4-ce137d23c022",
+      "name": "Abrir config.json"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        16,
+        0
+      ],
+      "id": "985f9934-d7e6-469b-9b75-9229ffe3caf3",
+      "name": "Extract from File"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Abrir config.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abrir config.json": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "18927884-7c02-41e2-a129-8dd473755f16",
+  "meta": {
+    "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
+  },
+  "id": "OjsI5KXo96vNJ6o4",
+  "tags": []
+}
