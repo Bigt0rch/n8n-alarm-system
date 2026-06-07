@@ -575,6 +575,7 @@ def generar_pdf(titulo: str, periodo_str: str,
                 modo_histograma: str,
                 inicio_dt: datetime,
                 fin_dt: datetime,
+                umbral_uptime: float,
                 log: logging.Logger) -> bytes:
     """
     Genera el PDF completo y lo devuelve como bytes.
@@ -631,19 +632,8 @@ def generar_pdf(titulo: str, periodo_str: str,
             else:
                 return COLOR_CRITICAL.hexval()
  
-        # Calcular cuartiles de uptime para colorear (invertido: menos uptime = peor)
-        uptime_vals = sorted([d["uptime_pct"] for d in uptime])
-        n_up     = len(uptime_vals)
-        media_up = sum(uptime_vals) / n_up if n_up else 100.0
-        q1_up    = uptime_vals[int(n_up * 0.25)] if n_up else 100.0
- 
         def _color_uptime(pct: float) -> colors.HexColor:
-            if pct >= media_up:
-                return COLOR_OK
-            elif pct >= q1_up:
-                return colors.HexColor("#e67e22")  # naranja
-            else:
-                return COLOR_CRITICAL
+            return COLOR_OK if pct >= umbral_uptime else COLOR_CRITICAL
  
         cabecera = ["Alarma / Servicio", "Uptime (%)", "Tiempo caído (min)", "Incidencias"]
         filas = [cabecera]
@@ -763,6 +753,7 @@ def enviar_informe(pdf_bytes: bytes, nombre_fichero: str,
 def ejecutar_informe(args, inicio_dt: datetime, fin_dt: datetime,
                      titulo: str, periodo_str: str, nombre_fichero: str,
                      modo_histograma: str,
+                     umbral_uptime: float,
                      log: logging.Logger) -> None:
     inicio = inicio_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     fin    = fin_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -783,7 +774,7 @@ def ejecutar_informe(args, inicio_dt: datetime, fin_dt: datetime,
     histograma = consultar_histograma_alarmas(query_api, args.influx_org, args.influx_bucket, inicio, fin, modo_histograma, log)
 
     log.info("Generando PDF...")
-    pdf_bytes = generar_pdf(titulo, periodo_str, uptime, metricas, histograma, modo_histograma, inicio_dt, fin_dt, log)
+    pdf_bytes = generar_pdf(titulo, periodo_str, uptime, metricas, histograma, modo_histograma, inicio_dt, fin_dt, umbral_uptime, log)
 
     if args.output_dir:
         output_dir = os.path.expanduser(args.output_dir)

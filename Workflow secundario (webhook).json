@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "fileSelector": "/home/victor/.n8n-files/config.json",
+        "fileSelector": "/home/victor/.n8n-files/configAlarms.json",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
@@ -124,7 +124,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "368300d1-53ae-4809-a5e1-db3c8b70bb5b",
+  "versionId": "0a181792-f628-43cb-9e76-7728a9d641f5",
   "meta": {
     "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
   },

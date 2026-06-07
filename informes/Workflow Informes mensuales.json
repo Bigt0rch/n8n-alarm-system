@@ -14,29 +14,29 @@
     },
     {
       "parameters": {
-        "command": "=python3 ~/.n8n-files/reportMonthly.py     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --email-to {{ $json.data.SEND_REPORTS_TO }}     --output-dir ~/.n8n-files/reports     --log-dir {{ $json.data.LOG_DIRECTORY }}"
+        "command": "=python3 ~/.n8n-files/reportMonthly.py     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --email-to {{ $json.data.SEND_REPORTS_TO }}     --output-dir ~/.n8n-files/reports     --log-dir {{ $json.data.LOG_DIRECTORY }} --umbral-uptime {{ $json.data.UMBRAL_COLOR_UPTIME }}"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        272,
+        304,
         0
       ],
-      "id": "9efd2a56-4358-4bb3-a875-ffc069114ff5",
+      "id": "4959b37a-f990-481c-a1f5-b4bb393e547b",
       "name": "Execute Command"
     },
     {
       "parameters": {
-        "fileSelector": "/home/victor/.n8n-files/config.json",
+        "fileSelector": "/home/victor/.n8n-files/configReports.json",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -176,
+        -144,
         0
       ],
-      "id": "5e72641b-c3e8-4550-aad4-ce137d23c022",
+      "id": "bb4dc7dd-8dd5-43bd-be31-f913e2024590",
       "name": "Abrir config.json"
     },
     {
@@ -47,10 +47,10 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        16,
+        80,
         0
       ],
-      "id": "985f9934-d7e6-469b-9b75-9229ffe3caf3",
+      "id": "8695f30d-a599-46d0-882f-e5ae2725e8bb",
       "name": "Extract from File"
     }
   ],
@@ -96,7 +96,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "18927884-7c02-41e2-a129-8dd473755f16",
+  "versionId": "5e73665a-6ecd-4410-a482-23e8459fb1e9",
   "meta": {
     "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
   },

@@ -14,12 +14,12 @@
     },
     {
       "parameters": {
-        "command": "=python3 ~/.n8n-files/reportAnnual.py     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --email-to {{ $json.data.SEND_REPORTS_TO }}     --output-dir ~/.n8n-files/reports     --log-dir {{ $json.data.LOG_DIRECTORY }}"
+        "command": "=python3 ~/.n8n-files/reportAnnual.py     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --email-to {{ $json.data.SEND_REPORTS_TO }}     --output-dir ~/.n8n-files/reports     --log-dir {{ $json.data.LOG_DIRECTORY }} --umbral-uptime {{ $json.data.UMBRAL_COLOR_UPTIME }}"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        272,
+        304,
         0
       ],
       "id": "d335c917-fded-418a-9882-554eedfffd97",
@@ -27,13 +27,13 @@
     },
     {
       "parameters": {
-        "fileSelector": "/home/victor/.n8n-files/config.json",
+        "fileSelector": "/home/victor/.n8n-files/configReports.json",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -176,
+        -144,
         0
       ],
       "id": "405841df-7ba7-44d1-b94d-18c243ab62d6",
@@ -47,7 +47,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        16,
+        80,
         0
       ],
       "id": "fb7eb464-770f-49fe-a140-b541c7bfd6c0",
@@ -96,7 +96,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "2432250f-978e-475b-8e6a-f8e8009ae5f9",
+  "versionId": "9c35568a-2ef5-4f9a-acfb-b8bbf100c37c",
   "meta": {
     "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
   },

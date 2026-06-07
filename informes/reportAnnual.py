@@ -41,8 +41,10 @@ def parsear_argumentos() -> argparse.Namespace:
     parser.add_argument("--smtp-password", required=True)
     parser.add_argument("--email-from",    required=True)
     parser.add_argument("--email-to",      required=True)
-    parser.add_argument("--output-dir",    required=False, default=None)
-    parser.add_argument("--log-dir",       required=False, default=None)
+    parser.add_argument("--output-dir",     required=False, default=None)
+    parser.add_argument("--log-dir",        required=False, default=None)
+    parser.add_argument("--umbral-uptime",  required=False, type=float, default=95.0,
+                        help="Umbral de uptime (%%) por debajo del cual se muestra en rojo (por defecto: 95)")
 
     try:
         return parser.parse_args()
@@ -94,6 +96,7 @@ if __name__ == "__main__":
             periodo_str=periodo_str,
             nombre_fichero=nombre_fichero,
             modo_histograma="mensual",
+            umbral_uptime=args.umbral_uptime,
             log=log
         )
     except Exception as e:
