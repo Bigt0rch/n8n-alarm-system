@@ -25,8 +25,9 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
-    PageBreak, Image, HRFlowable
+    PageBreak, Image, HRFlowable, Flowable
 )
+from reportlab.platypus.tableofcontents import TableOfContents
 
 
 # ── Paleta de colores ────────────────────────────────────────────────────────
@@ -69,6 +70,19 @@ def crear_estilos():
         fontSize=8, textColor=colors.grey,
         spaceAfter=2, spaceBefore=0,
         fontName="Helvetica-Oblique"
+    ))
+    # Estilos para el índice (nivel 1 = secciones, nivel 2 = subsecciones)
+    estilos.add(ParagraphStyle(
+        name="TOC1",
+        fontSize=11, textColor=COLOR_PRIMARIO,
+        spaceAfter=4, spaceBefore=2, leftIndent=0,
+        fontName="Helvetica-Bold"
+    ))
+    estilos.add(ParagraphStyle(
+        name="TOC2",
+        fontSize=9, textColor=COLOR_SECUNDARIO,
+        spaceAfter=2, spaceBefore=0, leftIndent=16,
+        fontName="Helvetica"
     ))
     return estilos
 
@@ -568,6 +582,37 @@ def grafica_histograma_alarmas(datos: dict, modo: str, inicio_dt: datetime, fin_
 
 # ── Construcción del PDF ─────────────────────────────────────────────────────
 
+class _EntradaTOC(Flowable):
+    """
+    Flowable invisible que, en el momento del renderizado, registra una
+    entrada en el TableOfContents y crea un bookmark PDF en la página actual.
+    Debe colocarse justo antes del Paragraph de título visible.
+    """
+    def __init__(self, toc: TableOfContents, texto: str, nivel: int, anchor: str):
+        Flowable.__init__(self)
+        self._toc    = toc
+        self._texto  = texto
+        self._nivel  = nivel
+        self._anchor = anchor
+        self.width   = 0
+        self.height  = 0
+
+    def draw(self):
+        # Bookmark PDF (permite navegación directa en el visor)
+        self.canv.bookmarkPage(self._anchor)
+        # Notificar al TOC: (nivel, texto, número_de_página, anchor)
+        self._toc.notify("TOCEntry", (self._nivel, self._texto,
+                                      self.canv.getPageNumber(), self._anchor))
+
+
+def _entrada_toc(toc: TableOfContents, texto: str, estilo_titulo,
+                 nivel: int, anchor: str) -> list:
+    """
+    Devuelve [flowable_invisible_de_registro, párrafo_de_título_visible].
+    """
+    return [_EntradaTOC(toc, texto, nivel, anchor), Paragraph(texto, estilo_titulo)]
+
+
 def generar_pdf(titulo: str, periodo_str: str,
                 uptime: list[dict],
                 metricas: dict,
@@ -598,9 +643,19 @@ def generar_pdf(titulo: str, periodo_str: str,
         estilos["Nota"]
     ))
     story.append(HRFlowable(width="100%", thickness=1, color=COLOR_SECUNDARIO, spaceAfter=12))
+    story.append(PageBreak())
+
+    # ── Índice ────────────────────────────────────────────────────────────────
+    story.append(Paragraph("Índice", estilos["Titulo"]))
+    story.append(Spacer(1, 0.4*cm))
+    toc = TableOfContents()
+    toc.levelStyles = [estilos["TOC1"], estilos["TOC2"]]
+    toc.dotsMinLevel = 0   # puntos de relleno en todos los niveles
+    story.append(toc)
+    story.append(PageBreak())
 
     # ── Sección 1: Uptime de servicios ───────────────────────────────────────
-    story.append(Paragraph("1. Uptime de servicios", estilos["Seccion"]))
+    story.extend(_entrada_toc(toc, "1. Uptime de servicios", estilos["Seccion"], 0, "sec1"))
 
     if uptime:
         # Frases resumen antes de la tabla
@@ -669,7 +724,7 @@ def generar_pdf(titulo: str, periodo_str: str,
     story.append(PageBreak())
 
     # ── Sección 2: Métricas de servidores (una página por host) ──────────────
-    story.append(Paragraph("2. Métricas de servidores y VMs", estilos["Seccion"]))
+    story.extend(_entrada_toc(toc, "2. Métricas de servidores y VMs", estilos["Seccion"], 0, "sec2"))
     story.append(Paragraph(
         "A continuación se detalla el rendimiento de cada servidor y máquina virtual.",
         estilos["Nota"]
@@ -677,8 +732,9 @@ def generar_pdf(titulo: str, periodo_str: str,
 
     if metricas:
         for idx_host, (host, datos) in enumerate(sorted(metricas.items())):
+            anchor_host = f"sec2_{idx_host + 1}"
             story.append(PageBreak())
-            story.append(Paragraph(f"2.{idx_host + 1}  {host}", estilos["Seccion"]))
+            story.extend(_entrada_toc(toc, f"2.{idx_host + 1}  {host}", estilos["Seccion"], 1, anchor_host))
             story.append(HRFlowable(width="100%", thickness=0.5, color=COLOR_SECUNDARIO, spaceAfter=8))
             img_host, img_reg_host, anotaciones_host = grafica_metricas_host(host, datos)
             story.append(img_host)
@@ -695,14 +751,15 @@ def generar_pdf(titulo: str, periodo_str: str,
     story.append(PageBreak())
 
     # ── Sección 3: Disparos de alarmas (una página por alarma) ───────────────
-    story.append(Paragraph("3. Disparos de alarmas en el período", estilos["Seccion"]))
+    story.extend(_entrada_toc(toc, "3. Disparos de alarmas en el período", estilos["Seccion"], 0, "sec3"))
     unidad = "día" if modo_histograma == "diario" else "mes"
 
     paginas_alarmas = grafica_histograma_alarmas(histograma, modo_histograma, inicio_dt, fin_dt)
     for idx_al, (img_alarma, anotaciones_al) in enumerate(paginas_alarmas):
         # Título de la alarma (extraído de los datos originales)
         nombre_al = list(histograma.values())[idx_al]["nombre"]
-        story.append(Paragraph(f"3.{idx_al + 1}  {nombre_al}", estilos["Seccion"]))
+        anchor_al = f"sec3_{idx_al + 1}"
+        story.extend(_entrada_toc(toc, f"3.{idx_al + 1}  {nombre_al}", estilos["Seccion"], 1, anchor_al))
         story.append(HRFlowable(width="100%", thickness=0.5, color=COLOR_SECUNDARIO, spaceAfter=8))
         story.append(img_alarma)
         story.append(Spacer(1, 0.4*cm))
@@ -712,7 +769,7 @@ def generar_pdf(titulo: str, periodo_str: str,
         if (idx_al+1)%2 == 0:
             story.append(PageBreak())
 
-    doc.build(story)
+    doc.multiBuild(story)
     log.debug("PDF generado correctamente")
     return buf.getvalue()
 
