@@ -112,6 +112,7 @@ def construir_email(destinatario: str, alarma: dict, email_from: str) -> MIMEMul
     <p><b>Alarma:</b> {alarma['nombre']}</p>
     <p><b>Estado:</b> {alarma['estado_nuevo']}</p>
     <p><b>Valor:</b> {alarma.get('valor')}</p>
+    {'<p><b>Contexto:</b> ' + alarma['contexto'] + '</p>' if es_critico else ''}
     """
 
     msg = MIMEMultipart("alternative")

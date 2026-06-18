@@ -14,7 +14,7 @@
     },
     {
       "parameters": {
-        "command": "=python3 ~/.n8n-files/reportMonthly.py     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --email-to {{ $json.data.SEND_REPORTS_TO }}     --output-dir ~/.n8n-files/reports     --log-dir {{ $json.data.LOG_DIRECTORY }} --umbral-uptime {{ $json.data.UMBRAL_COLOR_UPTIME }}"
+        "command": "=python3 ~/.n8n-files/reportMonthly.py     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --email-to {{ $json.data.SEND_REPORTS_TO }}     --output-dir {{ $json.data.OUTPUT_DIR }}     --log-dir {{ $json.data.LOG_DIRECTORY }} --umbral-uptime {{ $json.data.UMBRAL_COLOR_UPTIME }}"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -96,7 +96,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "5e73665a-6ecd-4410-a482-23e8459fb1e9",
+  "versionId": "00533407-081f-4e90-838f-7e700aa2f10c",
   "meta": {
     "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
   },

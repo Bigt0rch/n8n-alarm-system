@@ -1,5 +1,5 @@
 {
-  "name": "Workflow Informes anuales",
+  "name": "Workflow Informes diarios",
   "nodes": [
     {
       "parameters": {},
@@ -9,12 +9,12 @@
         -368,
         0
       ],
-      "id": "c583af60-3b45-41ed-bf6b-bb7cadc752ca",
+      "id": "30f552de-eff7-42e3-978c-c0c48ceb2a81",
       "name": "When clicking ‘Execute workflow’"
     },
     {
       "parameters": {
-        "command": "=python3 ~/.n8n-files/reportAnnual.py     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --email-to {{ $json.data.SEND_REPORTS_TO }}     --output-dir {{ $json.data.OUTPUT_DIR }}     --log-dir {{ $json.data.LOG_DIRECTORY }} --umbral-uptime {{ $json.data.UMBRAL_COLOR_UPTIME }}"
+        "command": "=python3 ~/.n8n-files/reportDaily.py     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --output-dir {{ $json.data.OUTPUT_DIR }}     --log-dir {{ $json.data.LOG_DIRECTORY }} --umbral-uptime {{ $json.data.UMBRAL_COLOR_UPTIME }} --alarm-config {{ $json.data.ALARMS_FILE }} --dockers-file {{ $json.data.DOCKERS_FILE }}"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -22,7 +22,7 @@
         304,
         0
       ],
-      "id": "d335c917-fded-418a-9882-554eedfffd97",
+      "id": "6c06d64b-7921-4348-ba49-dbf7b2e4206a",
       "name": "Execute Command"
     },
     {
@@ -36,7 +36,7 @@
         -144,
         0
       ],
-      "id": "405841df-7ba7-44d1-b94d-18c243ab62d6",
+      "id": "8efa3aaa-7e9d-4b70-8e57-8eeed54c7309",
       "name": "Abrir config.json"
     },
     {
@@ -50,7 +50,7 @@
         80,
         0
       ],
-      "id": "fb7eb464-770f-49fe-a140-b541c7bfd6c0",
+      "id": "beb5e2fc-f48e-4b03-8181-19c3c9ed1159",
       "name": "Extract from File"
     }
   ],
@@ -96,10 +96,10 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "2b75c6da-fcec-4e60-8995-30303debb4e6",
+  "versionId": "67ba9663-7044-4f8c-9d5e-afc823025fd8",
   "meta": {
     "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
   },
-  "id": "ekdMtFR689rDgBdZ",
+  "id": "rgYOJC4WVg8vPN1T",
   "tags": []
 }

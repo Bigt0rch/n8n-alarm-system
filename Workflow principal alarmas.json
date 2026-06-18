@@ -14,7 +14,7 @@
     },
     {
       "parameters": {
-        "fileSelector": "/home/victor/.n8n-files/official_alarms_updated.json",
+        "fileSelector": "/home/victor/.n8n-files/test_alarms.json",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
@@ -188,7 +188,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "6ea27a6a-43a6-401f-b632-8fa0f8272bfe",
+  "versionId": "8a47c829-1d67-4930-bcc9-04f0e6e4fe40",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"

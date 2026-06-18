@@ -7,6 +7,10 @@ from datetime import datetime, timezone
 from reportGenerator import ejecutar_informe
 
 
+# El informe anual solo debe incluir uptime de servicios y contenedores Docker.
+SECCIONES_INFORME_ANUAL = {"uptime"}
+
+
 USO = """
 Uso:
   python reportAnnual.py \\
@@ -97,7 +101,8 @@ if __name__ == "__main__":
             nombre_fichero=nombre_fichero,
             modo_histograma="mensual",
             umbral_uptime=args.umbral_uptime,
-            log=log
+            log=log,
+            secciones=SECCIONES_INFORME_ANUAL
         )
     except Exception as e:
         log.error(f"Error generando el informe: {e}", exc_info=True)
