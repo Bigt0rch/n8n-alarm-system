@@ -47,7 +47,7 @@
     },
     {
       "parameters": {
-        "command": "=echo '{{ $json.stdout }}' | python3 /home/victor/.n8n-files/alarmNotifiern8n.py \\\n  --smtp-host     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_HOST }} \\\n  --smtp-port     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PORT }} \\\n  --smtp-user     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_USER }} \\\n  --smtp-password {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PASSWORD }} \\\n  --email-from    \"{{ $('Extract from File').item.json.data.MAIL_CONFIG.EMAIL_FROM }}\" \\\n  --log-dir       {{ $('Extract from File').item.json.data.LOG_DIRECTORY }}"
+        "command": "=echo '{{ $json.stdout }}' | python3 {{ $('Extract from File').item.json.data.NOTIFIER_SCRIPT }} \\\n  --smtp-host     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_HOST }} \\\n  --smtp-port     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PORT }} \\\n  --smtp-user     {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_USER }} \\\n  --smtp-password {{ $('Extract from File').item.json.data.MAIL_CONFIG.SMTP_PASSWORD }} \\\n  --email-from    \"{{ $('Extract from File').item.json.data.MAIL_CONFIG.EMAIL_FROM }}\" \\\n  --log-dir       {{ $('Extract from File').item.json.data.LOG_DIRECTORY }}"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -60,7 +60,7 @@
     },
     {
       "parameters": {
-        "command": "=echo '{{ JSON.stringify( $('Webhook').item.json.body ) }}' | python3 /home/victor/.n8n-files/alarmMonitorDBn8n.py \\\n  --influx-url    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_URL }} \\\n  --influx-token  {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_TOKEN }} \\\n  --influx-org    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_ORG }} \\\n  --influx-bucket {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_BUCKET }} \\\n --dockers-file {{ $('Extract from File').item.json.data.DOCKERS_FILE }} \\\n  --log-dir       {{ $('Extract from File').item.json.data.LOG_DIRECTORY }}"
+        "command": "=echo '{{ JSON.stringify( $('Webhook').item.json.body ) }}' | python3 {{ $json.data.MONITOR_SCRIPT }} \\\n  --influx-url    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_URL }} \\\n  --influx-token  {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_TOKEN }} \\\n  --influx-org    {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_ORG }} \\\n  --influx-bucket {{ $('Extract from File').item.json.data.INFLUX_CONFIG.INFLUX_BUCKET }} \\\n --dockers-file {{ $('Extract from File').item.json.data.DOCKERS_FILE }} \\\n  --log-dir       {{ $('Extract from File').item.json.data.LOG_DIRECTORY }}"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -124,7 +124,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "feba95d3-5afe-4f35-a1bb-abda395bef8a",
+  "versionId": "7df07da1-bf22-4637-9528-259f72419c60",
   "meta": {
     "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
   },

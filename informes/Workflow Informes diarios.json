@@ -14,7 +14,7 @@
     },
     {
       "parameters": {
-        "command": "=python3 ~/.n8n-files/reportDaily.py     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --output-dir {{ $json.data.OUTPUT_DIR }}     --log-dir {{ $json.data.LOG_DIRECTORY }} --umbral-uptime {{ $json.data.UMBRAL_COLOR_UPTIME }} --alarm-config {{ $json.data.ALARMS_FILE }} --dockers-file {{ $json.data.DOCKERS_FILE }}"
+        "command": "=python3 {{ $json.data.DAILY_REPORTS_SCRIPT }}     --influx-url {{ $json.data.INFLUX_CONFIG.INFLUX_URL }}     --influx-token {{ $json.data.INFLUX_CONFIG.INFLUX_TOKEN }}     --influx-org {{ $json.data.INFLUX_CONFIG.INFLUX_ORG }}     --influx-bucket {{ $json.data.INFLUX_CONFIG.INFLUX_BUCKET }}     --smtp-host {{ $json.data.MAIL_CONFIG.SMTP_HOST }}     --smtp-port {{ $json.data.MAIL_CONFIG.SMTP_PORT }}     --smtp-user {{ $json.data.MAIL_CONFIG.SMTP_USER }}     --smtp-password {{ $json.data.MAIL_CONFIG.SMTP_PASSWORD }}     --email-from \"{{ $json.data.MAIL_CONFIG.EMAIL_FROM }}\"     --output-dir {{ $json.data.OUTPUT_DIR }}     --log-dir {{ $json.data.LOG_DIRECTORY }} --umbral-uptime {{ $json.data.UMBRAL_COLOR_UPTIME }} --alarm-config {{ $json.data.ALARMS_FILE }} --dockers-file {{ $json.data.DOCKERS_FILE }}"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -96,7 +96,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "67ba9663-7044-4f8c-9d5e-afc823025fd8",
+  "versionId": "35877bff-3b90-455d-9f15-1ec258050a5e",
   "meta": {
     "instanceId": "afde4d66edfef596de2347e0862570c6f7ddd536bf6dd4017b6ff41b7c06ce51"
   },
