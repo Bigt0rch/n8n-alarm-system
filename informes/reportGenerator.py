@@ -37,10 +37,6 @@ COLOR_OK         = colors.HexColor("#1e8449")
 COLOR_CRITICAL   = colors.HexColor("#c0392b")
 COLOR_FONDO      = colors.HexColor("#f2f3f4")
 
-
-REPORT_GENERATOR_VERSION = "2026-06-18-v8-ok-to-critical-only"
-
-
 def flux_escape(valor) -> str:
     """Escapa un valor para insertarlo como string literal en Flux."""
     return str(valor).replace("\\", "\\\\").replace('"', '\\"')
@@ -534,6 +530,7 @@ def consultar_fallos_con_contexto(query_api, org: str, bucket: str,
                 continue
             if alarm_ids is not None and aid not in alarm_ids:
                 continue
+            contexto = contexto.replace('@@NL@@', '')
             resultado.setdefault(aid, []).append({
                 "ts":       rec.get_time(),
                 "contexto": contexto,
@@ -1092,34 +1089,58 @@ def generar_pdf(titulo: str, periodo_str: str,
 
         def _color_uptime(pct):
             return COLOR_OK if pct >= umbral_uptime else COLOR_CRITICAL
-
+        
         def _tabla_uptime(datos_uptime, etiqueta):
             if not datos_uptime:
                 story.append(Paragraph(f"Sin datos de uptime de {etiqueta} en el período.", estilos["Normal"]))
                 return
+
             datos_ord = sorted(datos_uptime, key=lambda d: d["uptime_pct"])
-            n_bajo    = sum(1 for d in datos_ord if d["uptime_pct"] < umbral_uptime)
+
+            datos_rojos = [d for d in datos_ord if d["uptime_pct"] < umbral_uptime]
+            datos_resto = [d for d in datos_ord if d["uptime_pct"] >= umbral_uptime]
+
+            n_bajo = len(datos_rojos)
+
             story.append(Paragraph(
                 f"<b>{n_bajo}</b> de los <b>{len(datos_ord)}</b> {etiqueta} han tenido un uptime "
                 f"inferior al {umbral_uptime}% durante el período.", estilos["Nota"]
             ))
+
             peor = datos_ord[0]
             story.append(Paragraph(
                 f"El peor uptime corresponde a <b>{peor['nombre']}</b> "
                 f"con un <b>{peor['uptime_pct']}%</b>.", estilos["Nota"]
             ))
+
             story.append(Spacer(1, 0.3*cm))
-            filas = [["Alarma / Servicio", "Uptime (%)", "Tiempo caído (min)"]]
-            for d in datos_ord:
-                c = _color_uptime(d["uptime_pct"])
-                filas.append([
-                    Paragraph(d["nombre"], estilos["Normal"]),
-                    Paragraph(f'<font color="{c.hexval()}">{d["uptime_pct"]}%</font>', estilos["Normal"]),
-                    str(d["tiempo_caido_min"]),
-                ])
-            t = Table(filas, colWidths=[9*cm, 4*cm, 5*cm], repeatRows=1)
-            t.setStyle(TABLA_STYLE)
-            story.append(t)
+
+            def _pintar_tabla_uptime(datos, titulo):
+                if not datos:
+                    return
+
+                story.append(Paragraph(f"<b>{titulo}</b>", estilos["Nota"]))
+
+                filas = [["Alarma / Servicio", "Uptime (%)", "Tiempo caído (min)"]]
+
+                for d in datos:
+                    c = _color_uptime(d["uptime_pct"])
+                    filas.append([
+                        Paragraph(d["nombre"], estilos["Normal"]),
+                        Paragraph(f'<font color="{c.hexval()}">{d["uptime_pct"]}%</font>', estilos["Normal"]),
+                        str(d["tiempo_caido_min"]),
+                    ])
+
+                t = Table(filas, colWidths=[9*cm, 4*cm, 5*cm], repeatRows=1)
+                t.setStyle(TABLA_STYLE)
+                story.append(t)
+                story.append(Spacer(1, 0.4*cm))
+
+            # Primero los uptimes críticos en rojo
+            _pintar_tabla_uptime(datos_rojos, f"Uptimes críticos de {etiqueta}")
+
+            # Después el resto
+            _pintar_tabla_uptime(datos_resto, f"Resto de uptimes de {etiqueta}")
 
         story.extend(_entrada_toc(toc, f"{s}. Uptime", estilos["Seccion"], 0, f"sec{s}"))
         story.extend(_entrada_toc(toc, f"{s}.1  Servicios", estilos["Subseccion"], 1, f"sec{s}_1"))
@@ -1149,22 +1170,53 @@ def generar_pdf(titulo: str, periodo_str: str,
             if not datos_uptime:
                 story.append(Paragraph(f"Sin datos de incidencias de {etiqueta} en el período.", estilos["Normal"]))
                 return
+
             inc_ord = sorted(datos_uptime, key=lambda d: d["n_incidencias"], reverse=True)
+
+            color_critico = COLOR_CRITICAL.hexval().lower()
+
+            inc_rojas = [
+                d for d in inc_ord
+                if _color_inc(d["n_incidencias"]).lower() == color_critico
+            ]
+
+            inc_resto = [
+                d for d in inc_ord
+                if _color_inc(d["n_incidencias"]).lower() != color_critico
+            ]
+
             story.append(Paragraph(
                 f"La alarma con más activaciones ha sido <b>{inc_ord[0]['nombre']}</b>, "
                 f"con <b>{inc_ord[0]['n_incidencias']}</b> incidencias en el período.", estilos["Nota"]
             ))
+
             story.append(Spacer(1, 0.3*cm))
-            filas = [["Alarma / Servicio", "Incidencias"]]
-            for d in inc_ord:
-                c = _color_inc(d["n_incidencias"])
-                filas.append([
-                    Paragraph(d["nombre"], estilos["Normal"]),
-                    Paragraph(f'<font color="{c}"><b>{d["n_incidencias"]}</b></font>', estilos["Normal"]),
-                ])
-            t = Table(filas, colWidths=[13*cm, 5*cm], repeatRows=1)
-            t.setStyle(TABLA_STYLE)
-            story.append(t)
+
+            def _pintar_tabla_incidencias(datos, titulo):
+                if not datos:
+                    return
+
+                story.append(Paragraph(f"<b>{titulo}</b>", estilos["Nota"]))
+
+                filas = [["Alarma / Servicio", "Incidencias"]]
+
+                for d in datos:
+                    c = _color_inc(d["n_incidencias"])
+                    filas.append([
+                        Paragraph(d["nombre"], estilos["Normal"]),
+                        Paragraph(f'<font color="{c}"><b>{d["n_incidencias"]}</b></font>', estilos["Normal"]),
+                    ])
+
+                t = Table(filas, colWidths=[13*cm, 5*cm], repeatRows=1)
+                t.setStyle(TABLA_STYLE)
+                story.append(t)
+                story.append(Spacer(1, 0.4*cm))
+
+            # Primero las activaciones críticas en rojo
+            _pintar_tabla_incidencias(inc_rojas, f"Activaciones críticas de {etiqueta}")
+
+            # Después el resto
+            _pintar_tabla_incidencias(inc_resto, f"Resto de activaciones de {etiqueta}")
 
         story.extend(_entrada_toc(toc, f"{s}. Activaciones de alarmas", estilos["Seccion"], 0, f"sec{s}"))
         story.extend(_entrada_toc(toc, f"{s}.1  Servicios", estilos["Subseccion"], 1, f"sec{s}_1"))
@@ -1192,7 +1244,6 @@ def generar_pdf(titulo: str, periodo_str: str,
                 modo_metricas = "anual" if modo_histograma == "mensual" else "mensual"
             for idx_host, (host, datos) in enumerate(sorted(metricas.items())):
                 anchor_host = f"sec{s}_{idx_host + 1}"
-                story.append(PageBreak())
                 story.extend(_entrada_toc(toc, f"{s}.{idx_host + 1}  {host}",
                                           estilos["Seccion"], 1, anchor_host))
                 story.append(HRFlowable(width="100%", thickness=0.5, color=COLOR_SECUNDARIO, spaceAfter=8))
@@ -1204,13 +1255,15 @@ def generar_pdf(titulo: str, periodo_str: str,
                 for anotacion in anotaciones_host:
                     story.append(Paragraph(anotacion, estilos["Normal"]))
                     story.append(Spacer(1, 0.15*cm))
+                story.append(PageBreak())
                 if img_pred_host is not None and "proyecciones" in secciones:
                     story.append(Spacer(1, 0.3*cm))
                     story.append(Paragraph("Predicción para el próximo mes (ARIMA)", estilos["Subseccion"]))
                     story.append(img_pred_host)
+                story.append(PageBreak())
         else:
             story.append(Paragraph("Sin datos de métricas en el período.", estilos["Normal"]))
-        story.append(PageBreak())
+        #story.append(PageBreak())
 
     # ── Sección: Disparos de alarmas + análisis de fallos ────────────────────
     if "disparos" in secciones and histograma:
@@ -1259,8 +1312,8 @@ def generar_pdf(titulo: str, periodo_str: str,
                     story.append(Paragraph(anotacion, estilos["Normal"]))
                     story.append(Spacer(1, 0.15*cm))
 
-            if (idx_al + 1) % 2 == 0:
-                story.append(PageBreak())
+            #if (idx_al + 1) % 2 == 0:
+            story.append(PageBreak())
 
     doc.multiBuild(story)
     log.debug("PDF generado correctamente")
@@ -1319,7 +1372,6 @@ def ejecutar_informe(args, inicio_dt: datetime, fin_dt: datetime,
     fin    = fin_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     log.info(f"Generando informe: {titulo} | {periodo_str}")
-    log.info(f"reportGenerator version: {REPORT_GENERATOR_VERSION}")
     log.debug(f"Rango: {inicio} → {fin} | secciones={secciones} | alarm_ids={alarm_ids}")
 
     client    = InfluxDBClient(url=args.influx_url, token=args.influx_token, org=args.influx_org)

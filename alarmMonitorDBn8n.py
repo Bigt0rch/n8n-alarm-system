@@ -604,11 +604,13 @@ def construir_contexto(alarma: dict, indice_dockers: dict,
             query_api, influx_org, influx_bucket, alias_consulta, log
         )
         if estado_docker:
-            partes.append(f"Docker '{container_name}' (alias '{alias_consulta}'): {estado_docker}.")
+            partes.append(f"Docker: '{container_name}' (alias '{alias_consulta}')@@NL@@ Estado docker: {estado_docker}.")
         else:
-            partes.append(f"Docker '{container_name}' (alias '{alias_consulta}'): sin datos en InfluxDB.")
+            partes.append(f"Docker: '{container_name}' (alias '{alias_consulta}')@@NL@@ Estado docker: sin datos en InfluxDB sobre el estado del contenedor, registrelo en dockers.json si desea que se realice un seguimiento de su estado.")
     else:
         partes.append("Sin contenedor Docker asociado a este servicio.")
+
+    partes.append("@@NL@@")
 
     # Recursos de VM asociada
     maquina_virtual = alarma.get("maquina_virtual")
@@ -620,9 +622,9 @@ def construir_contexto(alarma: dict, indice_dockers: dict,
         lineas_recursos = []
 
         for nombre_rec, valor in [
-            ("CPU total", recursos["cpu"]),
-            ("RAM", recursos["ram"]),
-            ("Disco /", recursos["disco"]),
+            ("@@NL@@  • CPU total", recursos["cpu"]),
+            ("@@NL@@  • RAM", recursos["ram"]),
+            ("@@NL@@  • Disco /", recursos["disco"]),
         ]:
             if valor is None:
                 lineas_recursos.append(f"{nombre_rec}: sin datos")
@@ -635,17 +637,17 @@ def construir_contexto(alarma: dict, indice_dockers: dict,
 
         if saturados:
             partes.append(
-                f"POSIBLE CAUSA: los siguientes recursos están saturados "
+                f"@@NL@@POSIBLE CAUSA: los siguientes recursos están saturados "
                 f"(su valor es mayor o igual al {UMBRAL_RECURSO_CRITICO}%): "
                 f"{', '.join(saturados)}."
             )
         else:
             partes.append(
-                "Los recursos de la maquina virtual no parecen estar relacionados con el fallo "
+                "@@NL@@Los recursos de la maquina virtual no parecen estar relacionados con el fallo "
                 f"(ninguno supera el {UMBRAL_RECURSO_CRITICO}%)."
             )
     else:
-        partes.append("Sin máquina virtual asociada a este servicio.")
+        partes.append("Sin máquina virtual asociada a este servicio. Defina el nombre del host en el archivo alarmas.json")
 
     return " ".join(partes)
 
