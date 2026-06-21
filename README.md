@@ -1,8 +1,9 @@
 # n8n-alarm-system
 A docker container/service/server alarm monitoring system automated using n8n.
 
-## config.json
-Este fichero te debe ser proporcionado y ahí es donde debes modificar llos valores de las distintas credenciales, tanto de base de datos como del correo.
+Este proyecto ha sido creado como un complemento al proyecto [monitorizacion-grafana-influx-telegraf](https://github.com/luisGarciiaa/monitorizacion-grafana-influx-telegraf) de [Luis Garcia Capilla](https://github.com/luisGarciiaa) por solicitud de la UPM y como mi Trabajo de Fin de Máster del [Máster en Ciencia de Datos](https://mucd.dia.fi.upm.es/). Durante todas las explicaciones de este y otros ficheros, se presupone que usted tiene dicho proyecto instalado en su máquina y ejecutandose.
+
+Dentro de cada una de las carpetas de este proyecto encontrarás más información sobre como levantar los workflow del sistema de alarmas y el sistema de informes. En este README se describe información sobre como levantar n8n, como configurarlo como servicio en Linux y como importar workflows.
 
 ## Versiones
 
@@ -96,26 +97,10 @@ n8n start
 4. Haz clic en **Next** para continuar.
  
 ---
- 
-### Notas adicionales
- 
-- Por defecto, n8n guarda todos los datos (flujos, credenciales, etc.) en un archivo SQLite en tu directorio de usuario (`~/.n8n`).
-- n8n solo permite leer archivos desde el directorio (`~/.n8n-files`), así que debes colocar los archivos del workflow (scripts, archivos de configuración, etc) allí.
----
 
-## Scripts
+## Como importar un workflow
 
- - Coloca los archivos [alarmMonitorDBn8n.py](alarmMonitorDBn8n.py) y [alarmNotifiern8n.py](alarmNotifiern8n.py) en la carpeta `~/.n8n-files`.
-
-## Workflow
-
- - Para importar el workflow crea un nuevo workflow y haz click en los 3 puntos de arriba a la derecha. Luego haz click en `Import from file...` y selecciona el archivo [Workflow principal alarmas.json](Workflow%20principal%20alarmas.json).
- - Realiza el mismo proceso con el archivo [Workflow secundario (webhook).json](Workflow%20secundario%20(webhook).json)
- - Coloca el fichero [alarms.json](alarms.json) en el directorio `~/.n8n-files`.
-  - En el nodo `Abrir alarms.json` del workflow `Workflow principal alarmas.json` modifica el path del archivo que se abre por donde este ubicado tu [alarms.json](alarms.json).
- - Coloca el fichero [config.json](config.json) en el directorio `~/.n8n-files`.
- - En el nodo `Abrir config.json` del workflow `Workflow secundario (webhook).json` modifica el path del archivo que se abre por donde este ubicado tu [config.json](alarms.json).
-  - Modifica tambien los paths de los scripts Python que se ejecutan en los nodos `AlarmMonitor` y `AlarmNotifier` del workflow `Workflow secundario (webhook).json` para que se ejecuten tus ficheros [alarmMonitorDBn8n.py](alarmMonitorDBn8n.py) y [alarmNotifiern8n.py](alarmNotifiern8n.py).
+ - Para importar un workflow crea un nuevo workflow y haz click en los 3 puntos de arriba a la derecha. Luego haz click en `Import from file...` y selecciona el archivo Que contiene el fichero que desas importar.
 
 ## Configurar n8n como un Servicio
 
@@ -238,21 +223,26 @@ Esto mostrará los eventos en tiempo real relacionados con el servicio de n8n.
 
 ---
 
-### Notas adicionales
+## Ficheros necesarios para que todos los sistemas funcionen
 
-#### Persistencia de datos
+La siguiente lista es un compendio de ficheros de configuración que deberías poseer para poder hacer funcionar todo el sistema en conjunto, si no los tiene, contacte con su administrador para que se los proporcione.
 
-Por defecto, n8n almacena su base de datos SQLite y configuraciones en:
-
-```bash
-~/.n8n
-```
-
-Asegúrate de que el usuario especificado en `User` tenga permisos sobre este directorio.
+ - **alarms.json**
+ - **configReports.json**
+ - **configAlarms.json**
+ - **dockers.json**: este fichero es el mismo [dockers.json](https://github.com/luisGarciiaa/monitorizacion-grafana-influx-telegraf/blob/main/scripts/dockers.json) que se encuentra en el proyecto [monitorizacion-grafana-influx-telegraf](https://github.com/luisGarciiaa/monitorizacion-grafana-influx-telegraf) de [Luis Garcia Capilla](https://github.com/luisGarciiaa), por lo que a lo mejor es buena idea crear un hard link a ese fichero para así poder tener una única version del fichero que siempre esté actualizada.
+]
 
 ---
 
-#### Acceso desde navegador
+
+### Notas adicionales
+
+- Por defecto, n8n guarda todos los datos (flujos, credenciales, etc.) en un archivo SQLite en tu directorio de usuario (`~/.n8n`).
+- Por defecto y motivos de seguridad. **n8n solo permite leer y escribir archivos desde el directorio (`~/.n8n-files`), así que debes colocar los archivos del workflow (scripts, archivos de configuración, rutas donde depositar logs y/o infomes, etc) allí.**
+- En algunos escenarios, n8n no es capar de abrir rutas relativas, como puede ser ~/n8n.files/ así que se recomienda el uso de rutas absolutas durante la configuración de estos proyectos como /home/\<usuario\>/n8n-files.
+
+#### Acceso  a n8n desde navegador
 
 Una vez iniciado el servicio, podrás acceder a n8n desde:
 
@@ -261,6 +251,3 @@ http://IP_DEL_SERVIDOR:5678
 ```
 
 o mediante tu dominio configurado.
-
----
-
