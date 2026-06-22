@@ -1,6 +1,36 @@
 # Configurar los workflows de alarmas
 A continuación veremos como configurar el sistema de alarmas en n8n, si tiene alguna duda sobre alguno de los ficheros de configuración aquí mencionados, por favor lea [Ficheros necesarios para que todos los sistemas funcionen](../README.md#Ficheros-necesarios-para-que-todos-los-sistemas-funcionen).
 
+## Paso previo, desactivar el registro de estados de servicios mediante Telegraf
+En el proyecto [monitorizacion-grafana-influx-telegraf](https://github.com/luisGarciiaa/monitorizacion-grafana-influx-telegraf) de [Luis Garcia Capilla](https://github.com/luisGarciiaa) Telegraf recoge el código HTTP que devuelven las alarmas y lo almacena en influx. Sin embargo, tiene un problema con los timeout que provoca que nunca se lleguen a recoger todos los codigos de todos los servicios registrados. Es por esto que esa funcionalidad ha sido migrada a este proyecto.
+
+Para evitar solapamientos entre la información de este proyecto y el de [Luis Garcia Capilla](https://github.com/luisGarciiaa), debemos desactivar esta función mencionada del proyecto [monitorizacion-grafana-influx-telegraf](https://github.com/luisGarciiaa/monitorizacion-grafana-influx-telegraf) de [Luis Garcia Capilla](https://github.com/luisGarciiaa). Para ello, iremos al fichero [telegraf.conf](https://github.com/luisGarciiaa/monitorizacion-grafana-influx-telegraf/blob/main/telegraf.conf) y buscaremos el siguiente fragmento:
+
+```
+[[inputs.exec]]
+  commands = ["bash -c \"source /home/.../myenv/bin/activate && python3 /home/.../monitor_servicio.py\""]  
+  interval = "30s"
+  timeout = "10s"
+  data_format = "influx"
+  name_override = "servicio_gen"
+  [inputs.exec.tags]
+    url = "servicio_general"
+```
+**Debemos comentar este fragmento y dejalo de la siguiente manera**:
+```
+# [[inputs.exec]]
+#   commands = ["bash -c \"source /home/.../myenv/bin/activate && python3 /home/.../monitor_servicio.py\""]  
+#   interval = "30s"
+#   timeout = "10s"
+#   data_format = "influx"
+#   name_override = "servicio_gen"
+#   [inputs.exec.tags]
+#     url = "servicio_general"
+```
+
+Después debemos relanzar telegraf en nuestro sistema para que estos cambios sean efectivos.
+
+
 ## Archivo de configuración configAlarms.json
 A continuación veremos los cambios que se deben realizar al archivo configAlarms.json que se le debe haber proporcionado. Más información en [README.md](../README.md#Ficheros-necesarios-para-que-todos-los-sistemas-funcionen).
   - **`INFLUX_CONFIG`**: este objeto contiene varios campos necesarios pare que el workflow pueda relizar su conexion con InfluxDB. Asegurese de rellenar los campos correctamente o el sistema fallará por completo.
