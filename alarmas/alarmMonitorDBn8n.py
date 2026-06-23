@@ -338,7 +338,7 @@ def escribir_servicio_gen(write_api, influx_org: str, influx_bucket: str,
     point = (
         Point(SERVICIO_MEASUREMENT)
         .tag("nombre", nombre)
-        .field("status_code", int(status_code))
+        .field("status_code", float(status_code))
     )
     write_api.write(bucket=influx_bucket, org=influx_org, record=point)
     log.debug(f"{SERVICIO_MEASUREMENT}[{nombre}].status_code = {status_code} escrito en InfluxDB")
