@@ -37,3 +37,10 @@ A continuación veremos como importar y configurar el workflow que genera los in
  - Recuerde colocar el fichero configReports.json en el directorio `n8n-files` o algún subdirectorio.
  - En el nodo `Abrir config.json` del workflow modifique el path del archivo que se abre por donde este ubicado su fichero configReports.json.
  - Sustituya el trigger del workflow por otro un trigger `On a schedule` y cionfigurelo para que este workflow se ejecute con la frecuencia que usted desee. Recomendamos ejecutarlo todos los días a las 6AM.
+
+## Requirements
+ Para poder ejecutar los scripts de los workflows, es necesario instalar **fuera de cualquier entorno virtual** mediante el siguiente comando las librerias del [requirements.txt](requirements.txt)
+ 
+ ```
+ pip install -r requirements.txt
+ ```

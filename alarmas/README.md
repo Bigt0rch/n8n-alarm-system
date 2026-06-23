@@ -59,3 +59,11 @@ Para configurar el workflow secundario que se encarga de procesar los lotes de a
  - En el nodo `Abrir config.json` del workflow modifique el path del archivo que se abre por donde este ubicado tu fichero a configAlarms.json.
  - Finalmente, encontrará un botón que dice **Publish** en la parte superior de tu pantalla, esto es necesario para que el endopint del workflow quede expuesto. Presionalo para publicarlo.
  - Asegurese de que **la URL del nodo `HTTP Request` del [Workflow principal alarmas.json](Workflow%20principal%20alarmas.json) conincide con la URL de producción del nodo `Webhook` del [Workflow secundario (webhook).json](Workflow%20secundario%20(webhook).json)**.
+
+
+## Requirements
+Para poder ejecutar los scripts de los workflows, es necesario instalar **fuera de cualquier entorno virtual** mediante el siguiente comando las librerias del [requirements.txt](requirements.txt)
+
+```
+pip install -r requirements.txt
+```
